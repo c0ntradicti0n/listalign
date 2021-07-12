@@ -17,5 +17,6 @@ setup(
    author_email='stefan.renrew@gmail.com',
    packages=['listalign'],
    install_requires= install_requires,
-   tests_require = tests_require
+   tests_require = tests_require,
+   package_dir={"":"python/listalign"}
 )
