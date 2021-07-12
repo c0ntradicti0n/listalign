@@ -18,5 +18,5 @@ setup(
    packages=['listalign'],
    install_requires= install_requires,
    tests_require = tests_require,
-   package_dir={"":"python/listalign"}
+   package_dir={"":"python/"}
 )
