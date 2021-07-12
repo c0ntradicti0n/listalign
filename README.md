@@ -86,7 +86,7 @@ suffix_align(seq_1, seq_2)
 
 * add some fuzzyness
 * diff-like support, that detects shifts between the sequences
-* add parallisation support
+* add parallelisation abilities
 
 # Contribute
 
