@@ -1,7 +1,7 @@
 from collections import defaultdict, deque
 from typing import List, Tuple
 
-from python.listalign.helpers import alignment_table, timeit_context
+from listalign.helpers import alignment_table, timeit_context
 
 
 def suffix_align(*texts, _tree=None) -> List[Tuple[int, int]]:
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     import paired
     import matplotlib.pyplot as plt
 
-    with open("../../test/data/faust.txt") as f:
+    with open("../test/data/faust.txt") as f:
         text = "".join(f.readlines())[:100000000].replace("", "")
 
     words_a = text.replace("n", "n ").split(" ")

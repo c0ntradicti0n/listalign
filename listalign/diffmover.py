@@ -1,11 +1,8 @@
-from itertools import groupby
-from pprint import pprint
-
 from Levenshtein._levenshtein import distance
 from diff_match_patch import diff_match_patch
 
-from python.listalign.helpers import alignment_table
-from python.listalign.suffixtreealign import suffix_align
+from listalign.helpers import alignment_table
+from listalign.suffixtreealign import suffix_align
 
 def equalize_seqs(seq_a, seq_b, s, moves):
     print(seq_a)
@@ -70,10 +67,9 @@ def diff_move_alignment(seq_a, seq_b):
 
 if __name__ == "__main__":
     import time
-    from texttable import Texttable
     from contextlib import contextmanager
 
-    with open("../../test/data/faust.txt") as f:
+    with open("../test/data/faust.txt") as f:
         text = "".join(f.readlines())[:100000000].replace("", "")
 
     words_a = text.replace("n", "n ").split(" ")

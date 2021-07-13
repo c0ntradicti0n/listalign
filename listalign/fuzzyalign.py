@@ -3,9 +3,9 @@ import json
 
 from diff_match_patch import diff_match_patch
 
-from python.listalign.helpers import preprocess, alignment_table, str_in_list_at, find_pos_at, AlignmentException
-from python.listalign.join_astar import lcs
-from python.listalign.suffixtreealign import suffix_align
+from listalign.helpers import preprocess, alignment_table, str_in_list_at, find_pos_at, AlignmentException
+from listalign.join_astar import lcs
+from listalign.suffixtreealign import suffix_align
 
 
 def fuzzyalign(seq_a, seq_b):
@@ -145,7 +145,7 @@ def equalize_seq_b(seq_a, seq_b, min_l=3):
 
 
 if __name__ == "__main__":
-    with open("../../test/data/pdfminer-vs-pdf2htmlex.json") as f:
+    with open("../test/data/pdfminer-vs-pdf2htmlex.json") as f:
         words_a, words_b = json.loads("".join(f.readlines()))
 
     print(alignment_table(fuzzyalign(words_a, words_b), words_a, words_b))
