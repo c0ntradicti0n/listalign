@@ -53,7 +53,6 @@ def align(list_a, list_b):
         result = parasail.sw_trace_scan_16(str_a, str_b, 10, 1, parasail.blosum62)
         print((result.cigar.decode.decode("utf8")))
         alignment = cigar_to_table(result.cigar.beg_ref, result.cigar.decode.decode("utf8"), str_a, str_b)
-        print(t)
 
     prev_result = list(sorted(set(
         [(m_a[a] if a in m_a else None, m_b[b] if b != None else None) for a, b in (alignment)]
