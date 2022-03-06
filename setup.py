@@ -11,7 +11,7 @@ tests_require = [
 
 setup(
    name='listalign',
-   version='1.0',
+   version='1.1',
    description='Align lists of strings, that sum up to the same string, by a suffix tree',
    packages=['listalign'],
    install_requires= install_requires,
