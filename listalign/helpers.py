@@ -38,7 +38,7 @@ def alignment_table(alignment, a, b):
         [
             ['i', 'w1', 'w2', 'i', 'j']
         ] + [
-            [ii, a[i] if i or i == 0 else "xxx", b[j] if j or j == 0 else "xxx", i, j
+            [ii, a[i] if i or i == 0 else "	      ∅-1 ", b[j] if j or j == 0 else " 	∅-2  ", i, j
              ]
             for ii, (i, j)
             in enumerate(alignment)]

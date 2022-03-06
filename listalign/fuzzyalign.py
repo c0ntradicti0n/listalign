@@ -145,7 +145,7 @@ def equalize_seq_b(seq_a, seq_b, min_l=3):
 
 
 if __name__ == "__main__":
-    with open("../test/data/pdfminer-vs-pdf2htmlex.json") as f:
+    with open("test/data/pdfminer-vs-pdf2htmlex.json") as f:
         words_a, words_b = json.loads("".join(f.readlines()))
 
     print(alignment_table(fuzzyalign(words_a, words_b), words_a, words_b))

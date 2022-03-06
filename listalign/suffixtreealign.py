@@ -20,7 +20,7 @@ def suffix_align(*texts, _tree=None) -> List[Tuple[int, int]]:
 
             try:
                 c_pos_b, new_w_pos_b = find_position(node)
-            except StopIteration:
+            except Exception:
                 # continue
 
                 print("not found")
@@ -35,7 +35,10 @@ def suffix_align(*texts, _tree=None) -> List[Tuple[int, int]]:
 
 
 def find_position(node):
-    t = node[1].popleft()
+    try:
+        t = node[1].popleft()
+    except Exception as e:
+        raise
     new_w_pos_b, c_pos_b = t
     return c_pos_b, new_w_pos_b
 
@@ -52,10 +55,10 @@ def update_variables(new_w_pos_a, new_w_pos_b, path_to_return, texts, w_pos_a, w
 def build_suffix_tree(texts):
     tree = defaultdict(lambda: defaultdict(lambda: deque()))
 
-    for it, t in enumerate(texts):
-        for iw, word in enumerate(t):
-            for ic, ch in enumerate(word):
-                tree[ch][it].append((iw, ic))
+    for text_index, t in enumerate(texts):
+        for word_index, word in enumerate(t):
+            for char_index, letter in enumerate(word):
+                tree[letter][text_index].append((word_index, char_index))
 
     return tree
 
@@ -112,7 +115,7 @@ if __name__ == "__main__":
 
     def perf_plot():
         res = {}
-        for i in range(100, 100000, 1000):
+        for i in range(100, 1000, 10):
             start_time = time.time()
             suffix_align(words_a[:i], words_b[:i])
             res[i] = time.time() - start_time
@@ -133,7 +136,7 @@ if __name__ == "__main__":
 
     def perf_plot_paired():
         res = {}
-        for i in range(100, 1000, 10):
+        for i in range(50, 500, 10):
             start_time = time.time()
             suffix_align(words_a[:i], words_b[:i])
             la = time.time() - start_time

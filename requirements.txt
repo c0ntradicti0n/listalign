@@ -1,4 +1,10 @@
-texttable
-paired
-matplotlib
+texttable~=1.6.2
+paired~=0.0.1
+matplotlib~=3.4.2
 diff-match-patch
+defaultlist
+
+setuptools~=59.6.0
+defaultlist~=1.0.0
+numpy
+jellyfish
