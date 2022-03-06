@@ -9,7 +9,7 @@ import parasail
 
 
 def word_string_dict(list_words):
-    string = " ".join(list_words)
+    string = " ".join(list_words).encode("ascii", errors="ignore")
     index_mapping = {}
     i = 0
     for n, w in enumerate(list_words):
@@ -84,8 +84,8 @@ def stuff_socks(prev_result, window, l_a, l_b):
 if __name__=="__main__":
     from faker import Faker
 
-    text_a = ""
-    text_b = ""
+    text_a = "\ufb01"
+    text_b = "\ufb01"
     fake = Faker()
     for _ in range(100):
 
@@ -98,17 +98,13 @@ if __name__=="__main__":
     text_b = text_b.replace("e", "_")
     text_a = text_a.replace("o", "?")
 
-
-
-
-
     with timeit_context("match"):
         #text_b = text_b.replace("e", "a")
         l_a = text_a.split()
         for i, aw in enumerate(l_a):
             if random.random()>0.5 and i+1 < len(l_a):
                 l_a[i] = l_a[i] + l_a[i+1]
-                l_a[i+1] = "-"
+                l_a[i+1] = ""
 
 
 
