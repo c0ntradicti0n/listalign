@@ -58,6 +58,10 @@ def align(list_a, list_b):
         [(m_a[a] if a in m_a else None, m_b[b] if b != None else None) for a, b in (alignment)]
     ), key=lambda x: x[0] if x[0] else 0))
 
+    nones = [e for e in prev_result if e[1] == None]
+    for n in nones:
+        if any(n[0] == e[0] and e[0] != None for e in prev_result):
+            prev_result.pop(prev_result.index(n))
     # stuff_socks(prev_result, 3, list_a, list_b)
 
     return prev_result
