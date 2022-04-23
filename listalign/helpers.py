@@ -23,11 +23,14 @@ class AlignmentException(Exception):
 
 
 @contextmanager
-def timeit_context(name):
-    startTime = time.time()
-    yield
-    elapsedTime = time.time() - startTime
-    print('[{}] finished in {} ms'.format(name, int(elapsedTime * 1000)))
+def timeit_context(name, quiet= False):
+    if not quiet:
+        startTime = time.time()
+        yield
+        elapsedTime = time.time() - startTime
+        print('[{}] finished in {} ms'.format(name, int(elapsedTime * 1000)))
+    else:
+        yield
 
 
 def alignment_table(alignment, a, b):
