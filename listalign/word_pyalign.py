@@ -45,7 +45,7 @@ def cigar_to_table(pos1, pos2, cigar_str, str_a, str_b):
         for m, n in zip(ms, ns):
             if m and n:
                 try:
-                    print (f"{m=}-{str_a[m]=}<->{n=}-{str_b[n]=} {cigar_str}")
+                    #print (f"{m=}-{str_a[m]=}<->{n=}-{str_b[n]=} {cigar_str}")
                     assert str_a[m] == str_b[n]
                 except Exception as e:
                     raise
@@ -176,13 +176,13 @@ if __name__ == "__main__":
         d= {
             "~ align(a, b) ": score,
             "a ~ b": ground_similarity,
-            "corrupted": int (score < ground_similarity) * 100,
+            "corrupted": int (word_align_score < ground_similarity) * 100,
             "word_align_score": word_align_score,
             #**letter_prob,
-            "i corrupting": int("I" in extra["cigar"] and word_align_score < 40) * 100,
-            "d corrupting": int("D" in extra["cigar"] and word_align_score < 40) * 100,
-            "x corrupting": int("X" in extra["cigar"] and word_align_score < 40) * 100,
-            "= corrupting": int("=" in extra["cigar"] and word_align_score < 40) * 100,
+            #"i corrupting": int("I" in extra["cigar"] and word_align_score < 40) * 100,
+            #"d corrupting": int("D" in extra["cigar"] and word_align_score < 40) * 100,
+            #"x corrupting": int("X" in extra["cigar"] and word_align_score < 40) * 100,
+            #"= corrupting": int("=" in extra["cigar"] and word_align_score < 40) * 100,
             "cigar": extra["cigar"]
         }
         scores.append(d)
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         pprint(d)
 
         print(len(l_a))
-        if (word_align_score < 40):
+        if (int (word_align_score < ground_similarity)):
             if word_align_score < 50:
                 with open("a.fasta", "w+") as f:
 
