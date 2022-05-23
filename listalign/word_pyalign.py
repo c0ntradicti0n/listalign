@@ -1,14 +1,9 @@
 import random
 from collections import Counter
 from pprint import pprint
-
-import jellyfish as jellyfish
 import regex as regex
-
-jellyfish.jaro_distance(u'jellyfish', u'smellyfish')
 from listalign.helpers import timeit_context, alignment_table
 import parasail
-import rapidfuzz
 
 
 def word_string_dict(list_words):
@@ -52,16 +47,6 @@ def cigar_to_table(pos1, pos2, cigar_str, str_a, str_b):
             table.append((m, n,))
 
     return table
-
-
-import swalign
-
-# choose your own values here… 2 and -1 are common.
-match = 2
-mismatch = -1
-scoring = swalign.NucleotideScoringMatrix(match, mismatch)
-
-sw = swalign.LocalAlignment(scoring)  # you can also choose gap penalties, etc...
 
 
 def align(list_a, list_b):
@@ -121,6 +106,7 @@ if __name__ == "__main__":
     from faker import Faker
     import pandas
     import matplotlib.pyplot as plt
+    import rapidfuzz
 
     scores = []
     for i_exeperiment in range(300):
