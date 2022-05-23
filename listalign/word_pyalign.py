@@ -10,16 +10,16 @@ from listalign.helpers import timeit_context, alignment_table
 import parasail
 import rapidfuzz
 
+
 def word_string_dict(list_words):
-    string = "".join(list_words).encode("ascii", errors="ignore")
+    string = "".join(list_words).encode("ascii",  errors="replace")
     index_mapping = {}
     i = 0
     for n, w in enumerate(list_words):
         for c in w:
             index_mapping[i] = n
             i += 1
-        index_mapping[i] = n
-        #i += 1
+
     return string, index_mapping
 
 
@@ -45,7 +45,7 @@ def cigar_to_table(pos1, pos2, cigar_str, str_a, str_b):
         for m, n in zip(ms, ns):
             if m and n:
                 try:
-                    #print (f"{m=}-{str_a[m]=}<->{n=}-{str_b[n]=} {cigar_str}")
+                    # print (f"{m=}-{str_a[m]=}<->{n=}-{str_b[n]=} {cigar_str}")
                     assert str_a[m] == str_b[n]
                 except Exception as e:
                     raise
@@ -55,6 +55,7 @@ def cigar_to_table(pos1, pos2, cigar_str, str_a, str_b):
 
 
 import swalign
+
 # choose your own values here… 2 and -1 are common.
 match = 2
 mismatch = -1
@@ -70,27 +71,30 @@ def align(list_a, list_b):
 
     with timeit_context("swalign", quiet=True):
         pass
-        #result = sw.align(str_a,str_b)
-        #alignment = cigar_to_table(result.r_pos, result.cigar_str, str_a, str_b)
-        #result.dump()
+        # result = sw.align(str_a,str_b)
+        # alignment = cigar_to_table(result.r_pos, result.cigar_str, str_a, str_b)
+        # result.dump()
 
     with timeit_context("parasail", quiet=True):
         result = parasail.sw_trace_scan_16(str_a, str_b, 10, 1, parasail.blosum62)
-        #print((result.cigar.decode.decode("utf8")))
-        alignment = cigar_to_table(result.cigar.beg_query, result.cigar.beg_ref, result.cigar.decode.decode("utf8"), str_a, str_b)
+
+        alignment = cigar_to_table(result.cigar.beg_query, result.cigar.beg_ref, result.cigar.decode.decode("utf8"),
+                                   str_a, str_b)
 
     extra["cigar"] = result.cigar.decode.decode("utf8")
+
+    raw_alignment = []
+    for a, b in (alignment):
+        raw_alignment.append((m_a[a] if a in m_a else None, m_b[b] if b != None else None))
     prev_result = list(sorted(set(
-        [(m_a[a] if a in m_a else None, m_b[b] if b != None else None) for a, b in (alignment)]
-    ), key=lambda x: x[0] if x[0] else 0))
+        raw_alignment
+    ), key=lambda x: (x[0] if x[0] else 0) + (x[1] if x[1] else 1) / len(list_b)))
 
     nones = [e for e in prev_result if e[1] == None]
     for n in nones:
         if any(n[0] == e[0] and e[0] != None for e in prev_result):
             prev_result.pop(prev_result.index(n))
     # stuff_socks(prev_result, 3, list_a, list_b)
-
-
 
     return prev_result, extra
 
@@ -125,9 +129,6 @@ if __name__ == "__main__":
         text_b = ""
         fake = Faker()
 
-
-
-
         for _ in range(50):
 
             t = fake.text()
@@ -158,7 +159,6 @@ if __name__ == "__main__":
             l_b = text_b.split()
             word_to_word_alignment, extra = align(l_a, l_b)
 
-
         ata = "".join(l_a[a] for a, b in word_to_word_alignment if a)
         bta = "".join(l_b[b] for a, b in word_to_word_alignment if a)
         score = rapidfuzz.string_metric.normalized_levenshtein(ata, bta)
@@ -166,23 +166,23 @@ if __name__ == "__main__":
         word_align_score = \
             sum([
                 rapidfuzz.string_metric.jaro_similarity(l_a[a], l_b[b])
-                     for a, b in word_to_word_alignment if a
+                for a, b in word_to_word_alignment if a
             ]) / len([x for x in word_to_word_alignment if x])
 
         C = Counter([c for c in extra["cigar"] if c not in "1234567890"])
         letter_prob = {
-            c: n/ len(extra["cigar"]) * 100 for c, n in C.items()
+            c: n / len(extra["cigar"]) * 100 for c, n in C.items()
         }
-        d= {
+        d = {
             "~ align(a, b) ": score,
             "a ~ b": ground_similarity,
-            "corrupted": int (word_align_score < ground_similarity) * 100,
+            "corrupted": int(word_align_score < ground_similarity) * 100,
             "word_align_score": word_align_score,
-            #**letter_prob,
-            #"i corrupting": int("I" in extra["cigar"] and word_align_score < 40) * 100,
-            #"d corrupting": int("D" in extra["cigar"] and word_align_score < 40) * 100,
-            #"x corrupting": int("X" in extra["cigar"] and word_align_score < 40) * 100,
-            #"= corrupting": int("=" in extra["cigar"] and word_align_score < 40) * 100,
+            # **letter_prob,
+            # "i corrupting": int("I" in extra["cigar"] and word_align_score < 40) * 100,
+            # "d corrupting": int("D" in extra["cigar"] and word_align_score < 40) * 100,
+            # "x corrupting": int("X" in extra["cigar"] and word_align_score < 40) * 100,
+            # "= corrupting": int("=" in extra["cigar"] and word_align_score < 40) * 100,
             "cigar": extra["cigar"]
         }
         scores.append(d)
@@ -190,27 +190,24 @@ if __name__ == "__main__":
         pprint(d)
 
         print(len(l_a))
-        if (int (word_align_score < ground_similarity)):
+        if (int(word_align_score < ground_similarity)):
             if word_align_score < 50:
                 with open("a.fasta", "w+") as f:
-
                     f.write(f">a vs b - {i_exeperiment}\n")
                     f.write(text_a.replace("/n", "").replace(" ", ""))
                     f.write("*\n")
                 with open("b.fasta", "w+") as f:
-
                     f.write(f">a vs b - {i_exeperiment}\n")
                     f.write(text_b.replace("/n", "").replace(" ", ""))
                     f.write("*\n")
 
             print(alignment_table(word_to_word_alignment, l_a, l_b))
 
-
     df = pandas.DataFrame(scores)
 
     fig, ax = plt.subplots(figsize=(6, 4))
     df.plot(kind="hist",
-            #stacked=True,
+            # stacked=True,
             alpha=0.7,
-            bins = 30)
+            bins=30)
     plt.show()
