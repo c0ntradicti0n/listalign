@@ -13,14 +13,6 @@ def preprocess(texts):
 sign = lambda x: -1 if x < 0 else (1 if x > 0 else 0)
 
 
-class AlignmentException(Exception):
-    """Still an exception raised when uncommon things happen"""
-    def __init__(self, message, payload=None):
-        self.message = message
-        self.payload = payload # you could add more args
-    def __str__(self):
-        return str(self.message) # __str__() obviously expects a string to be returned, so make sure not to send any other data types
-
 
 @contextmanager
 def timeit_context(name, quiet= False):

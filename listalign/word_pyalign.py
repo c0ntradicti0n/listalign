@@ -79,8 +79,11 @@ def align(list_a, list_b):
     for n in nones:
         if any(n[0] == e[0] and e[0] != None for e in prev_result):
             prev_result.pop(prev_result.index(n))
-    # stuff_socks(prev_result, 3, list_a, list_b)
 
+
+
+    too_splitted = [e for e in prev_result if (e[0] != None and e[1] != None) and  list_a[e[0]] not in list_b[e[1]] and list_b[e[1]] not in list_a[e[0]] ]
+    prev_result = [e for e in prev_result if e not in too_splitted]
     return prev_result, extra
 
 
