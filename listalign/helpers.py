@@ -1,5 +1,6 @@
 import time
 from contextlib import contextmanager
+import itertools
 from string import printable
 from typing import List
 
@@ -24,17 +25,29 @@ def timeit_context(name, quiet= False):
     else:
         yield
 
+def pairwise(iterable):
+    # pairwise('ABCDEFG') --> AB BC CD DE EF FG
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return zip(a, b)
 
-def alignment_table(alignment, a, b):
+def triplewise(iterable):
+    "Return overlapping triplets from an iterable"
+    # triplewise('ABCDEFG') -> ABC BCD CDE DEF EFG
+    for (a, _), (b, c) in pairwise(pairwise(iterable)):
+        yield a, b, c
+
+
+def alignment_table(alignment, a, b, info_a=None, info_b=None):
     table = Texttable()
     table.set_deco(Texttable.HEADER)
-    table.set_cols_align(["c", "r", "l", "r", "l"])
+    table.set_cols_align(["c", "r", "l", "r", "l"] + (['r'] if info_a else [])+ (['l'] if info_b else []))
     table.add_rows(
         [
-            ['i', 'w1', 'w2', 'i', 'j']
+            ['i', 'w1', 'w2', 'i', 'j']   + (['info_a'] if info_a else [])+ (['info_b'] if info_b else [])
         ] + [
             [ii, a[i] if i or i == 0 else "	      ∅-1 ", b[j] if j or j == 0 else " 	∅-2  ", i, j
-             ]
+             ]  + ([info_a(i) if i else "None"] if info_a else [])+ ([info_b(j) if j else None] if info_b else [])
             for ii, (i, j)
             in enumerate(alignment)]
     )
