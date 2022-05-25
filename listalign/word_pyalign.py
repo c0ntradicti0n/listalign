@@ -61,7 +61,7 @@ def align(list_a, list_b):
         # result.dump()
 
     with timeit_context("parasail", quiet=True):
-        result = parasail.sw_trace_scan_16(str_a, str_b, 1, 0, parasail.blosum62)
+        result = parasail.sw_trace_scan_16(str_a, str_b, 100, 0, parasail.blosum62)
 
         alignment = cigar_to_table(result.cigar.beg_query, result.cigar.beg_ref, result.cigar.decode.decode("utf8"),
                                    str_a, str_b)
@@ -82,11 +82,12 @@ def align(list_a, list_b):
 
 
 
-    too_splitted = [e for e in prev_result if (e[0] != None and e[1] != None) and  list_a[e[0]] not in list_b[e[1]] and list_b[e[1]] not in list_a[e[0]] ]
-    too_splitted = []
+    too_splitted = [b for a,b,c in triplewise(prev_result) if (a[0] and b[1] and (list_b[b[1]] in list_a[a[0]] )) or (a[0] and b[1] and (list_b[b[1]] in list_a[c[0]]))]
+    #too_splitted = []
     prev_result = [e for e in prev_result if e not in too_splitted]
 
     too_far_neighbors = [b for a,b,c in triplewise(prev_result) if (b[0] - a[0] > 3 if a[0] and b[0] else True) and (c[0] - b[0] > 3 if b[0] and c[0] else True)]
+    #prev_result = [e for e in prev_result if e not in too_far_neighbors]
 
     return prev_result, extra
 

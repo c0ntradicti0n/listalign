@@ -37,6 +37,8 @@ def triplewise(iterable):
     for (a, _), (b, c) in pairwise(pairwise(iterable)):
         yield a, b, c
 
+def find_indices(list_to_check, item_to_find):
+    return [idx for idx, value in enumerate(list_to_check) if value == item_to_find]
 
 def alignment_table(alignment, a, b, info_a=None, info_b=None):
     table = Texttable()
