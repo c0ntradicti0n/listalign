@@ -61,7 +61,7 @@ def align(list_a, list_b):
         # result.dump()
 
     with timeit_context("parasail", quiet=True):
-        result = parasail.sw_trace_scan_16(str_a, str_b, 0, 1, parasail.blosum62)
+        result = parasail.sw_trace_scan_16(str_a, str_b, 1, 0, parasail.blosum62)
 
         alignment = cigar_to_table(result.cigar.beg_query, result.cigar.beg_ref, result.cigar.decode.decode("utf8"),
                                    str_a, str_b)
