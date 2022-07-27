@@ -61,12 +61,13 @@ def align(list_a, list_b):
         # result.dump()
 
     with timeit_context("parasail", quiet=True):
-        result = parasail.sw_trace_scan_16(str_a, str_b, 100, 0, parasail.blosum62)
+        result = parasail.sw_trace_striped_sat(str_a, str_b, 14, 1, parasail.blosum100)
 
         alignment = cigar_to_table(result.cigar.beg_query, result.cigar.beg_ref, result.cigar.decode.decode("utf8"),
                                    str_a, str_b)
 
     extra["cigar"] = result.cigar.decode.decode("utf8")
+    print (extra["cigar"] )
 
     raw_alignment = []
     for a, b in (alignment):
