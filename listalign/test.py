@@ -17,8 +17,12 @@ class AlignmentTest(unittest.TestCase):
         print(alignment_table(word_to_word_alignment, l_a, l_b, info_b= (lambda i: info_b[i]) if info_b else None,  info_a=(lambda i: info_a[i]) if info_a else None ))
         result = any(p in word_to_word_alignment for p in possibilities)
 
-        ata = "".join(l_a[a] for a, b in word_to_word_alignment if a)
-        bta = "".join(l_b[b] for a, b in word_to_word_alignment if a)
+        ata = "".join(l_a[a] for a, b in word_to_word_alignment if a is not None)
+        try:
+            bta = "".join(l_b[b] for a, b in word_to_word_alignment if b is not None)
+        except Exception as e:
+            raise e
+
         score = rapidfuzz.string_metric.normalized_levenshtein(ata, bta)
         ground_similarity = rapidfuzz.string_metric.normalized_levenshtein("".join(l_a), "".join(l_b))
         word_align_score = \

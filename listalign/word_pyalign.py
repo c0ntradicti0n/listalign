@@ -5,6 +5,10 @@ import regex as regex
 from listalign.helpers import timeit_context, alignment_table, triplewise
 import parasail
 
+def list_unique_preserve_order(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
 
 def word_string_dict(list_words):
     string = "".join(list_words).encode("ascii",  errors="replace")
@@ -49,7 +53,7 @@ def cigar_to_table(pos1, pos2, cigar_str, str_a, str_b):
     return table
 
 
-def align(list_a, list_b):
+def align(list_a, list_b, no_post_processing=True):
     str_a, m_a = word_string_dict(list_a)
     str_b, m_b = word_string_dict(list_b)
     extra = {}
@@ -72,6 +76,18 @@ def align(list_a, list_b):
     raw_alignment = []
     for a, b in (alignment):
         raw_alignment.append((m_a[a] if a in m_a else None, m_b[b] if b != None else None))
+
+    if no_post_processing:
+        # strip None parts
+        res = list_unique_preserve_order(raw_alignment[
+            next(i for i, (a,b) in enumerate(raw_alignment) if a is not None and b is not None):
+            next((i for i, (a,b)  in reversed(list(enumerate(raw_alignment))) if a is not None and b is not None))
+        ])
+        # remove none alignments
+        res = [(a,b) for a, b in res if a is not None and b is not None]
+        return res, extra
+
+
     prev_result = list(sorted(set(
         raw_alignment
     ), key=lambda x: (x[0] if x[0] else 0) + (x[1] if x[1] else 1) / len(list_b)))
