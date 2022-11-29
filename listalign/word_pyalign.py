@@ -5,17 +5,19 @@ import regex as regex
 from listalign.helpers import timeit_context, alignment_table, triplewise
 import parasail
 
+
 def list_unique_preserve_order(seq):
     seen = set()
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
 
+
 def word_string_dict(list_words):
-    string = "".join(list_words).encode("ascii",  errors="replace")
+    string = "".join(list_words).encode("ascii", errors="replace")
     index_mapping = {}
     i = 0
     for n, w in enumerate(list_words):
-        for c in w:
+        for _ in w:
             index_mapping[i] = n
             i += 1
 
@@ -25,10 +27,10 @@ def word_string_dict(list_words):
 cigar_op_format = {
     "=": lambda i, pos1, pos2: (range(pos1, pos1 + i), range(pos2, pos2 + i), pos1 + i, pos2 + i),
     "M": lambda i, pos1, pos2: (range(pos1, pos1 + i), range(pos2, pos2 + i), pos1 + i, pos2 + i),
-    "D": lambda i, pos1, pos2: ([None] * (i), range(pos2, pos2 + i), pos1, pos2 + i),
-    "I": lambda i, pos1, pos2: (range(pos1, pos1 + i), [None] * (i), pos1 + i, pos2),
-    "S": lambda i, pos1, pos2: ([None] * (i), [None] * (i), pos1, pos2 + i),
-    "X": lambda i, pos1, pos2: ([None] * (i), [None] * (i), pos1 + i, pos2 + i),
+    "D": lambda i, pos1, pos2: ([None] * i, range(pos2, pos2 + i), pos1, pos2 + i),
+    "I": lambda i, pos1, pos2: (range(pos1, pos1 + i), [None] * i, pos1 + i, pos2),
+    "S": lambda i, pos1, pos2: ([None] * i, [None] * i, pos1, pos2 + i),
+    "X": lambda i, pos1, pos2: ([None] * i, [None] * i, pos1 + i, pos2 + i),
 }
 
 
@@ -36,8 +38,8 @@ def cigar_to_table(pos1, pos2, cigar_str, str_a, str_b):
     str_a = str_a.decode().lower()
     str_b = str_b.decode().lower()
     table = []
-    for i_op in regex.findall('\d+[A-Z=]', cigar_str):
-        i, op = regex.match('(\d+)([A-Z=])', i_op).groups()
+    for i_op in regex.findall(r'\d+[A-Z=]', cigar_str):
+        i, op = regex.match(r'(\d+)([A-Z=])', i_op).groups()
         i = int(i)
 
         ms, ns, pos1, pos2 = cigar_op_format[op](i, pos1, pos2)
@@ -47,7 +49,7 @@ def cigar_to_table(pos1, pos2, cigar_str, str_a, str_b):
                     # print (f"{m=}-{str_a[m]=}<->{n=}-{str_b[n]=} {cigar_str}")
                     assert str_a[m] == str_b[n]
                 except Exception as e:
-                    raise
+                    raise e
             table.append((m, n,))
 
     return table
@@ -71,22 +73,26 @@ def align(list_a, list_b, no_post_processing=True):
                                    str_a, str_b)
 
     extra["cigar"] = result.cigar.decode.decode("utf8")
-    print (extra["cigar"] )
+    print(extra["cigar"])
 
     raw_alignment = []
-    for a, b in (alignment):
-        raw_alignment.append((m_a[a] if a in m_a else None, m_b[b] if b != None else None))
+    for a, b in alignment:
+        raw_alignment.append((m_a[a] if a in m_a else None, m_b[b] if b is not None else None))
 
     if no_post_processing:
         # strip None parts
-        res = list_unique_preserve_order(raw_alignment[
-            next(i for i, (a,b) in enumerate(raw_alignment) if a is not None and b is not None):
-            next((i for i, (a,b)  in reversed(list(enumerate(raw_alignment))) if a is not None and b is not None))
-        ])
+        try:
+            res = list_unique_preserve_order(raw_alignment[
+                                             next(i for i, (a, b) in enumerate(raw_alignment) if
+                                                  a is not None and b is not None):
+                                             next((i for i, (a, b) in reversed(list(enumerate(raw_alignment))) if
+                                                   a is not None and b is not None))
+                                             ])
+        except StopIteration:
+            return [], {"cigar": ""}
         # remove none alignments
-        res = [(a,b) for a, b in res if a is not None and b is not None]
+        res = [(a, b) for a, b in res if a is not None and b is not None]
         return res, extra
-
 
     prev_result = list(sorted(set(
         raw_alignment
@@ -97,14 +103,14 @@ def align(list_a, list_b, no_post_processing=True):
         if any(n[0] == e[0] and e[0] != None for e in prev_result):
             prev_result.pop(prev_result.index(n))
 
-
-
-    too_splitted = [b for a,b,c in triplewise(prev_result) if (a[0] and b[1] and (list_b[b[1]] in list_a[a[0]] )) or (a[0] and b[1] and (list_b[b[1]] in list_a[c[0]]))]
-    #too_splitted = []
+    too_splitted = [b for a, b, c in triplewise(prev_result) if (a[0] and b[1] and (list_b[b[1]] in list_a[a[0]])) or (
+                a[0] and b[1] and (list_b[b[1]] in list_a[c[0]]))]
+    # too_splitted = []
     prev_result = [e for e in prev_result if e not in too_splitted]
 
-    too_far_neighbors = [b for a,b,c in triplewise(prev_result) if (b[0] - a[0] > 3 if a[0] and b[0] else True) and (c[0] - b[0] > 3 if b[0] and c[0] else True)]
-    #prev_result = [e for e in prev_result if e not in too_far_neighbors]
+    too_far_neighbors = [b for a, b, c in triplewise(prev_result) if
+                         (b[0] - a[0] > 3 if a[0] and b[0] else True) and (c[0] - b[0] > 3 if b[0] and c[0] else True)]
+    # prev_result = [e for e in prev_result if e not in too_far_neighbors]
 
     return prev_result, extra
 
